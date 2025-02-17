@@ -9,8 +9,49 @@
   <body>
     <main class="container">
       <h1>Vanilla Calendar</h1>
-      <div class="calendar"></div>
+      <form id="configForm">
+        <div>
+          <label for="startTime">Start Time</label>
+          <input type="time" id="startTime" name="startTime" />
+        </div>
+        <div>
+          <label for="endTime">End Time</label>
+          <input type="time" id="endTime" name="endTime" />
+        </div>
+        <div>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+      <div 
+        class="calendar"
+        data-px-per-minute="3" 
+        data-minutes-per-row="15"
+        data-start-time="07:00"
+        data-end-time="22:00"></div>
     </main>
+
+    <template id="event-template">
+      <div class="event">
+        <div class="starts-at"></div>
+        <div class="title"></div>
+        <div class="ends-at"></div>
+      </div>
+    </template>
+
+    <template id="column-header-template">
+      <div class="header">
+        <div class="dayOfWeek"></div>
+        <div class="dayOfMonth"></div>
+      </div>
+    </template>
+
+    <template id="column-content-template">
+      <div class="content">
+        <div class="event-container"></div>
+      </div>
+    </template>
+
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

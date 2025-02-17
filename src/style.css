@@ -28,6 +28,11 @@ body {
   padding: 1.5rem;
 }
 
+#configForm {
+  display: flex;
+  gap: 1rem;
+}
+
 .calendar {
   display: grid;
   grid-template-columns: 75px;
@@ -38,7 +43,7 @@ body {
   .time-indicator {
     position: relative;
     top: calc(0.8em / 1.72 * -1);
-    padding-right: 4px;
+    padding-right: 6px;
     font-size: 0.8em;
     font-weight: lighter;
     text-align: right;
@@ -77,6 +82,7 @@ body {
     position: relative;
     width: 100%;
     background-color: #fafafa;
+    border-left: 2px solid #eaeaea;
 
     .time-marker {
       position: absolute;
@@ -85,24 +91,60 @@ body {
       background-color: #eaeaea;
     }
 
+    .event-container {
+      width: 90%;
+      position: relative;
+    }
+
     .event {
       position: absolute;
       border-left: 8px solid #ffc069;
       background-color: #ffc06977;
-      width: 100%;
       border-radius: 8px;
       display: flex;
       align-items: center;
+      margin-left: 4px;
+      width: 100%;
 
       .title {
+        position: sticky;
+        top: 32px;
         padding: 0.5rem;
         font-size: 0.9em;
         font-weight: 500;
+      }
+
+      .starts-at,
+      .ends-at {
+        position: absolute;
+        right: 12px;
+        font-size: 0.8em;
+        padding: 2px 6px;
+        background-color: #eaeaea77;
+        border: 1px solid #eaeaea;
+        border-radius: 4px;
+        visibility: hidden;
+      }
+
+      .starts-at {
+        top: -8px;
+      }
+
+      .ends-at {
+        bottom: -8px;
       }
     }
 
     .event:hover {
       background-color: #ffc06999;
+    }
+
+    .event:hover .starts-at {
+      visibility: visible;
+    }
+
+    .event:hover .ends-at {
+      visibility: visible;
     }
   }
 }
