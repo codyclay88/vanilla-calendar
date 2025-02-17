@@ -20,6 +20,8 @@ document.querySelector("#endTime").value = format(
   calendarConfig.endTime,
   "HH:mm"
 );
+document.querySelector("#pxPerMinute").value = calendarConfig.pxPerMinute;
+document.querySelector("#minutesPerRow").value = calendarConfig.minutesPerRow;
 
 document.querySelector("#configForm").addEventListener("submit", (e) => {
   e.preventDefault();
@@ -28,6 +30,9 @@ document.querySelector("#configForm").addEventListener("submit", (e) => {
   const newConfig = {
     ...calendarConfig,
     startTime: parse(formData.get("startTime"), "HH:mm", new Date()),
+    endTime: parse(formData.get("endTime"), "HH:mm", new Date()),
+    pxPerMinute: formData.get("pxPerMinute"),
+    minutesPerRow: formData.get("minutesPerRow"),
   };
   updateCalendarConfig(calendarEl, newConfig);
   buildCalendar(calendarEl, selectedDate, events);
@@ -45,7 +50,7 @@ function newEvent(date, startTime, stopTime, title) {
   return {
     date: parse(date, "yyyy-MM-dd", new Date()),
     startTime: parse(startTime, "HH:mm", new Date()),
-    stopTime: parse(stopTime, "HH:mm", new Date()),
+    endTime: parse(stopTime, "HH:mm", new Date()),
     title,
   };
 }

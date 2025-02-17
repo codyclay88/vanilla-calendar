@@ -89,10 +89,10 @@ function createEventElement(event, config) {
     "h:mm a"
   )}`;
   eventEl.querySelector(".ends-at").textContent = `${format(
-    event.stopTime,
+    event.endTime,
     "h:mm a"
   )}`;
-  const eventDuration = differenceInMinutes(event.stopTime, event.startTime);
+  const eventDuration = differenceInMinutes(event.endTime, event.startTime);
   const top = pxSinceStartTime(config, event.startTime);
   const height = eventDuration * config.pxPerMinute;
 
