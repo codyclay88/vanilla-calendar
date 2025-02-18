@@ -2,17 +2,28 @@ import {
   format,
   startOfWeek,
   endOfWeek,
-  parse,
   isSameDay,
-  differenceInMinutes,
   eachMinuteOfInterval,
+  add,
 } from "date-fns";
+import { CalendarEventController } from "./calendar-event";
+import { TimeMarkerController } from "./time-marker";
+import { getConfig } from "./config";
 
-export function buildCalendar(calendarEl, date, events) {
+function getTimeAtY(y) {
+  const config = getConfig();
+  const minutesSinceStart = y / config.pxPerMinute;
+  const time = new Date(config.startTime);
+  time.setMinutes(minutesSinceStart);
+  return time;
+}
+
+export function buildCalendar(calendarEl, events) {
   calendarEl.innerHTML = "";
+  const config = getConfig();
+  const date = config.date;
   const startDate = startOfWeek(date);
   const endDate = endOfWeek(date);
-  const config = getCalendarConfig(calendarEl);
 
   const times = eachMinuteOfInterval(
     {
@@ -63,11 +74,13 @@ function createColumnContent(calendarDiv, config, times, events) {
   const template = document.querySelector("#column-content-template");
   const clone = template.content.cloneNode(true);
   const el = clone.querySelector(".content");
+  new CalendarColumnEventInterceptor(el);
   const documentFragment = document.createDocumentFragment();
   times.forEach((time) => {
     const timeMarker = document.createElement("div");
-    timeMarker.classList.add("time-marker");
-    timeMarker.style.top = `${pxSinceStartTime(config, time)}px`;
+    const timeMarkerCtrl = new TimeMarkerController(timeMarker);
+    timeMarkerCtrl.time = time;
+    timeMarkerCtrl.draw();
     documentFragment.appendChild(timeMarker);
   });
   const eventContainer = clone.querySelector(".event-container");
@@ -79,53 +92,92 @@ function createColumnContent(calendarDiv, config, times, events) {
   el.insertBefore(documentFragment, eventContainer);
 }
 
-function createEventElement(event, config) {
+function createEventElement(event) {
   const eventTemplate = document.querySelector("#event-template");
   const clone = eventTemplate.content.cloneNode(true);
   const eventEl = clone.querySelector(".event");
-  eventEl.querySelector(".title").textContent = event.title;
-  eventEl.querySelector(".starts-at").textContent = `${format(
-    event.startTime,
-    "h:mm a"
-  )}`;
-  eventEl.querySelector(".ends-at").textContent = `${format(
-    event.endTime,
-    "h:mm a"
-  )}`;
-  const eventDuration = differenceInMinutes(event.endTime, event.startTime);
-  const top = pxSinceStartTime(config, event.startTime);
-  const height = eventDuration * config.pxPerMinute;
+  const eventCtrl = new CalendarEventController(eventEl);
+  eventCtrl.title = event.title;
+  eventCtrl.startTime = event.startTime;
+  eventCtrl.endTime = event.endTime;
+  eventCtrl.draw();
 
-  eventEl.classList.add("event");
-  eventEl.style.height = `${height}px`;
-  eventEl.style.top = `${top}px`;
   return eventEl;
 }
 
-function pxSinceStartTime(config, time) {
-  return minutesSinceStartTime(config, time) * config.pxPerMinute;
+export class CalendarController {
+  constructor(calendarEl) {
+    this.calendarEl = calendarEl;
+  }
+
+  get events() {
+    return Array.from(this.calendarEl.querySelectorAll(".event"));
+  }
+
+  draw() {}
 }
 
-function minutesSinceStartTime(config, time) {
-  return differenceInMinutes(time, config.startTime);
+export class CalendarColumnEventInterceptor {
+  constructor(columnEl) {
+    columnEl.addEventListener("dragstart", this.onDragStart.bind(this));
+    // columnEl.addEventListener("dragenter", this.onDragEnter.bind(this));
+    columnEl.addEventListener("drag", this.onDrag.bind(this));
+    columnEl.addEventListener("dragend", this.onDragEnd.bind(this));
+  }
+
+  onDragStart(e) {
+    var img = new Image();
+    img.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="; // 1x1 pixel transparent gif
+
+    // Set the drag image to the invisible element
+    e.dataTransfer.setDragImage(img, 0, 0);
+    e.target.dataset.dragging = true;
+    this.offsetY = e.offsetY;
+  }
+
+  onDrag(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (e.x === 0 && e.y === 0) {
+      return;
+    }
+
+    const eventController = new CalendarEventController(e.target);
+
+    const adjustedY =
+      e.y - e.currentTarget.getBoundingClientRect().top - this.offsetY;
+
+    const newStartTime = getTimeAtY(adjustedY);
+    const newEndTime = add(newStartTime, { minutes: eventController.duration });
+
+    eventController.commit((ctrl) => {
+      ctrl.startTime = newStartTime;
+      ctrl.endTime = newEndTime;
+    });
+  }
+
+  onDragEnd(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.target.dataset.dragging = false;
+    this.offsetY = 0;
+  }
 }
 
-export function getCalendarConfig(calendarEl) {
-  return {
-    pxPerMinute: calendarEl.dataset.pxPerMinute || 3,
-    minutesPerRow: calendarEl.dataset.minutesPerRow || 15,
-    startTime: parse(
-      calendarEl.dataset.startTime ?? "07:00",
-      "HH:mm",
-      new Date()
-    ),
-    endTime: parse(calendarEl.dataset.endTime ?? "22:00", "HH:mm", new Date()),
-  };
-}
+export class CalendarEventInterceptor {
+  constructor() {
+    this.isDragging = false;
+    this.originalY = 0;
+    this.originalHeight = 0;
+    this.containerTop = 0;
 
-export function updateCalendarConfig(calendarEl, config) {
-  calendarEl.dataset.pxPerMinute = config.pxPerMinute;
-  calendarEl.dataset.minutesPerRow = config.minutesPerRow;
-  calendarEl.dataset.startTime = format(config.startTime, "HH:mm");
-  calendarEl.dataset.endTime = format(config.endTime, "HH:mm");
+    document.addEventListener("configChange", this.onConfigChange.bind(this));
+  }
+
+  onConfigChange(e) {
+    e.preventDefault();
+
+    calendarCtrl.draw();
+  }
 }

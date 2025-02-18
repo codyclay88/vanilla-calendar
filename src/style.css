@@ -25,7 +25,6 @@ body {
 
 .container {
   display: grid;
-  padding: 1.5rem;
 }
 
 #configForm {
@@ -139,11 +138,10 @@ body {
       background-color: #ffc06999;
     }
 
-    .event:hover .starts-at {
-      visibility: visible;
-    }
-
-    .event:hover .ends-at {
+    .event:hover .starts-at,
+    .event:hover .ends-at,
+    .event[data-dragging=true] .starts-at,
+    .event[data-dragging=true] .ends-at {
       visibility: visible;
     }
   }

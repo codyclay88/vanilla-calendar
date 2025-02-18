@@ -5,41 +5,64 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vanilla Calendar</title>
+    <!-- <script type="importmap">
+      {
+        "imports": {
+          "date-fns": "https://cdnjs.cloudflare.com/ajax/libs/date-fns/4.1.0/cdn.min.js"
+        }
+      }
+    </script> -->
   </head>
   <body>
     <main class="container">
-      <h1>Vanilla Calendar</h1>
-      <form id="configForm">
-        <div>
-          <label for="startTime">Start Time</label>
-          <input type="time" id="startTime" name="startTime" />
-        </div>
-        <div>
-          <label for="endTime">End Time</label>
-          <input type="time" id="endTime" name="endTime" />
-        </div>
-        <div>
-          <label for="pxPerMinute">Px/Min</label>
-          <input min="0" max="15" type="number" id="pxPerMinute" name="pxPerMinute" />
-        </div>
-        <div>
-          <label for="minutesPerRow">Min/Row</label>
-          <input min="5" max="60" type="number" id="minutesPerRow" name="minutesPerRow" />
-        </div>
-        <div>
-          <button type="submit">Save</button>
-        </div>
-      </form>
+      <div style="padding: 1rem;">
+        <h1>Vanilla Calendar</h1>
+        <form id="configForm">
+          <div>
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" value="2025-02-13" />
+          </div>
+          <div>
+            <label for="startTime">Start Time</label>
+            <input type="time" id="startTime" name="startTime" value="07:00" />
+          </div>
+          <div>
+            <label for="endTime">End Time</label>
+            <input type="time" id="endTime" name="endTime" value="22:00" />
+          </div>
+          <div>
+            <label for="pxPerMinute">Px/Min</label>
+            <input 
+              type="number" 
+              min="1" 
+              max="15" 
+              id="pxPerMinute" 
+              name="pxPerMinute"
+              value="3" 
+            />
+          </div>
+          <div>
+            <label for="minutesPerRow">Min/Row</label>
+            <input 
+              id="minutesPerRow" 
+              min="5" 
+              max="60" 
+              type="number" 
+              name="minutesPerRow" 
+              value="15"
+            />
+          </div>
+          <div>
+            <button type="submit">Save</button>
+          </div>
+        </form>
+      </div>
       <div 
-        class="calendar"
-        data-px-per-minute="3" 
-        data-minutes-per-row="15"
-        data-start-time="07:00"
-        data-end-time="22:00"></div>
+        class="calendar"></div>
     </main>
 
     <template id="event-template">
-      <div class="event">
+      <div class="event" draggable="true">
         <div class="starts-at"></div>
         <div class="title"></div>
         <div class="ends-at"></div>
